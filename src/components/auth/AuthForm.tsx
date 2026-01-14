@@ -8,7 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Eye, EyeOff } from 'lucide-react';
-import { userAuthStore } from '@/store/authStore';
+import { useAuthStore } from '@/store/authStore';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -35,7 +35,7 @@ interface AuthFormProps {
     loginDoctor, 
     loading, 
     error ,
-  } = userAuthStore();
+  } = useAuthStore();
 
   const router = useRouter();
 

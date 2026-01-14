@@ -1,13 +1,13 @@
 "use client"
 
-import { userAuthStore } from '@/store/authStore';
+import { useAuthStore } from '@/store/authStore';
 import { redirect } from 'next/navigation';
 import React, { useEffect } from 'react'
 
 const layout = ({ children }: { children: React.ReactNode }) => {
 
-    const user = userAuthStore((s) => s.user);
-    const isAuthenticated = userAuthStore((s) => s.isAuthenticated);
+    const user = useAuthStore((s) => s.user);
+    const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
 
     useEffect(() => {

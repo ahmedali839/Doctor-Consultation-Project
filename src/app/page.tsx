@@ -4,12 +4,12 @@ import Footer from "@/components/landing/Footer";
 import Header from "@/components/landing/Header";
 import LandingHero from "@/components/landing/LandingHero";
 import TestimonialsSection from "@/components/landing/TestimonialsSection";
-import { userAuthStore } from "@/store/authStore";
+import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function Home() {
- const {user} = userAuthStore();
+ const {user} = useAuthStore();
   const router = useRouter();
 
   useEffect(() => {

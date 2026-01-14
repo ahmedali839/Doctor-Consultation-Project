@@ -1,13 +1,13 @@
 "use client";
-import React from 'react'
-import { Button } from '../ui/button'
-import Link from 'next/link'
-import { healthcareCategories } from '@/lib/constant'
+
+import { Button } from '../ui/button';
+import Link from 'next/link';
+import { healthcareCategories } from '@/lib/constant';
 import { useRouter } from 'next/navigation';
-import { userAuthStore } from '@/store/authStore';
+import { useAuthStore } from '@/store/authStore';
 
 const LandingHero = () => {
-  const { isAuthenticated } = userAuthStore();
+  const { isAuthenticated } = useAuthStore();
   const router = useRouter();
 
 

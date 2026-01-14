@@ -1,11 +1,11 @@
 'use client'
-import { userAuthStore } from "@/store/authStore";
+import { useAuthStore } from "@/store/authStore";
 import React, { useEffect } from "react";
 
 
 
 export function Providers({children} : {children:React.ReactNode}) {
-    const {fetchProfile,token} =  userAuthStore();
+    const {fetchProfile,token} =  useAuthStore();
     useEffect(() => {
         if(token){
             fetchProfile();

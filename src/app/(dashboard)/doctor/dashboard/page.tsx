@@ -6,7 +6,6 @@ const page = () => {
   return (
     <Suspense fallback={<Loader />}>
       <DoctorDashboardContent />
-
     </Suspense>
   )
 }

@@ -1,6 +1,6 @@
 "use client";
 import { DoctorFormData, HospitalInfo } from "@/lib/types";
-import { userAuthStore } from "@/store/authStore";
+import { useAuthStore } from "@/store/authStore";
 import React, { ChangeEvent, useState } from "react";
 import { Card, CardContent } from "../ui/card";
 import { useRouter } from "next/navigation";
@@ -44,7 +44,7 @@ const DoctorOnboardingForm = () => {
     slotDurationMinutes: 30,
   });
 
-  const { updateProfile, user, loading } = userAuthStore();
+  const { updateProfile, user, loading } = useAuthStore();
   const router = useRouter();
 
   const handleCategoryToggle = (category: string): void => {

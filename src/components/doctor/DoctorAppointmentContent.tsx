@@ -1,40 +1,25 @@
-// import React from "react";
-// import Header from "../landing/Header";
-
-// const PatientDashboardContent = () => {
-//   return (
-//     <>
-//       <Header showDashboardNav={true} />
-//     </>
-//   );
-// };
-
-// export default PatientDashboardContent;
-
-
-
-
-
-
-
 "use client";
-import React, { useEffect, useState } from "react";
-import Header from "../landing/Header";
-import { useAuthStore } from "@/store/authStore";
+
 import { Appointment, useAppointmentStore } from "@/store/appointmentStore";
+import { useAuthStore } from "@/store/authStore";
+import React, { useEffect, useState } from "react";
 import { Card, CardContent } from "../ui/card";
+import { Avatar, AvatarImage } from "../ui/avatar";
+import { AvatarFallback } from "@radix-ui/react-avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import Link from "next/link";
 import { Button } from "../ui/button";
-import { Calendar, Clock, FileText, MapPin, Phone, Star, Video } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { Calendar } from "../ui/calendar";
+import { Clock, Phone, Star, Stethoscope, Video, XCircle } from "lucide-react";
+import Header from "../landing/Header";
 import { Badge } from "../ui/badge";
-import { getStatusColor } from "@/lib/constant";
-import PrescriptionViewModal from "../doctor/PrescriptionViewModal";ccccccc
+import { emptyStates, getStatusColor } from "@/lib/constant";
+import PrescriptionViewModel from "./PrescriptionViewModel";
 
-const PatientDashboardContent = () => {
-  const { user } = userAuthStore();
-  const { appointments, fetchAppointments, loading } = useAppointmentStore();
+const DoctorAppointmentContent = () => {
+  const { user } = useAuthStore();
+  const { appointments, updateAppointmentStatus, loading, fetchAppointments } =
+    useAppointmentStore();
   const [activeTab, setActiveTab] = useState("upcoming");
   const [tabCounts, setTabCounts] = useState({
     upcoming: 0,
@@ -42,15 +27,16 @@ const PatientDashboardContent = () => {
   });
 
   useEffect(() => {
-    if (user?.type === "patient") {
-      fetchAppointments("patient", activeTab);
+    if (user?.type === "doctor") {
+      fetchAppointments("doctor", activeTab);
     }
   }, [user, activeTab, fetchAppointments]);
 
-  //update tab counts whever appointmnet chnage
+  // update tab counts whenever appointment change
   useEffect(() => {
     const now = new Date();
-    //filter the upcoming appointmnet
+    // filter the upcoming appointment
+
     const upcomingAppointments = appointments.filter((apt) => {
       const aptDate = new Date(apt.slotStartIso);
       return (
@@ -59,7 +45,7 @@ const PatientDashboardContent = () => {
       );
     });
 
-    //filter the past appointmnet
+    // filter the past appointment
     const pastAppointments = appointments.filter((apt) => {
       const aptDate = new Date(apt.slotStartIso);
       return (
@@ -71,7 +57,7 @@ const PatientDashboardContent = () => {
 
     setTabCounts({
       upcoming: upcomingAppointments.length,
-      past: pastAppointments.length,
+      past: appointments.length,
     });
   }, [appointments]);
 
@@ -95,15 +81,37 @@ const PatientDashboardContent = () => {
   const canJoinCall = (appointment: any) => {
     const appointmentTime = new Date(appointment.slotStartIso);
     const now = new Date();
-    const diffMintues = (appointmentTime.getTime() - now.getTime()) / (1000 * 60);
 
+    const diffMintues =
+      (appointmentTime.getTime() - now.getTime()) / (1000 * 60);
     return (
       isToday(appointment.slotStartIso) &&
-      diffMintues <= 15 && //not earliar than 15 min before start
-      diffMintues >= -120 && //not later than 2 hours after start
+      diffMintues <= 15 && // not earlier that 15 min before start
+      diffMintues >= -120 && // not later that 2 hours after start
       (appointment.status === "Scheduled" ||
         appointment.status === "In Progress")
     );
+  };
+
+  const canMarkCancelled = (appointment: any) => {
+    const appointmentTime = new Date(appointment.slotStartIso);
+    const now = new Date();
+    return appointment.status === "Scheduled" && now > appointmentTime;
+  };
+
+  const handleMarkCancelled = async (appointmentId: string) => {
+    if (
+      confirm("Are you sure you want to mark this appointment as cancelled")
+    ) {
+      try {
+        await updateAppointmentStatus(appointmentId, "Cancelled");
+        if (user?.type === "doctor") {
+          fetchAppointments("doctor", activeTab);
+        }
+      } catch (error) {
+        console.error("Failed to mark cancl appointment", error);
+      }
+    }
   };
 
   if (!user) {
@@ -111,34 +119,45 @@ const PatientDashboardContent = () => {
   }
 
   const AppointmentCard = ({ appointment }: { appointment: Appointment }) => (
-    <Card className="hover:shadow-lg transition-shadow">
+    <Card className="hover:shadow-lg transition: shadow">
       <CardContent className="p-6">
         <div className="flex flex-col items-center md:flex-row md:items-start md:space-x-6">
-          <div className="flex-shrink-0 flex justify-center md:justify-start">
-            <Avatar className="w-20 h-20">
+          <div className="flex flex-shrink-0 justify-center md:justify-start">
+            <Avatar className="size-20">
               <AvatarImage
-                src={appointment.doctorId?.profileImage}
-                alt={appointment.doctorId?.name}
+                src={appointment.patientId?.profileImage}
+                alt={appointment.patientId?.name}
               />
+
               <AvatarFallback className="bg-blue-100 text-blue-600 text-lg font-semibold">
-                {appointment.doctorId?.name?.charAt(0)}
+                {appointment.patientId?.name?.charAt(0)}
               </AvatarFallback>
             </Avatar>
           </div>
+
+          {/*           
+        </div>
+      </CardContent>
+    </Card>
+  );
+
+  return <div>DoctorAppointmentContent</div>;
+};
+
+export default DoctorAppointmentContent; */}
 
           <div className="mt-4 md:mt-0 flex-1 w-full text-center md:text-left">
             <div className="flex flex-col md:flex-row md:justify-between md:items-start">
               <div>
                 <h3 className="text-lg font-semiboldtext-gray-900">
-                  {appointment.doctorId?.name}
+                  {appointment.patientId?.name}
                 </h3>
                 <p className="text-gray-600">
-                  {appointment.doctorId?.specialization}
+                  Age : {appointment.patientId?.age}
                 </p>
-                <div className="flex items-center justify-center md:justify-start space-x-1 text-sm text-gray-500 mt-1">
-                  <MapPin className="w-3 h-3" />
-                  <span>{appointment.doctorId?.hospitalInfo?.name}</span>
-                </div>
+                <p className="text-sm text-gray-600">
+                  {appointment.patientId?.email}
+                </p>
               </div>
 
               <div className="mt-2 md:mt-0 text-center md:text-right">
@@ -188,49 +207,58 @@ const PatientDashboardContent = () => {
             </div>
 
             <div className="mt-6 flex flex-col md:flex-row items-center md:justify-between space-y-3 md:space-y-0">
+              <div className="flex space-x-2">
+                {canJoinCall(appointment) && (
+                  <Link href={`/call/${appointment._id}`}>
+                    <Button
+                      size="sm"
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <Video className="w-4 h-4 mr-2" />
+                      Start Consultation
+                    </Button>
+                  </Link>
+                )}
 
-            <div className="flex space-x-2">
-              {canJoinCall(appointment) && (
-                <Link href={`/call/${appointment._id}`}>
-                <Button
-                 size='sm'
-                 className="bg-green-600 hover:bg-green-700"
-                >
-                  <Video className="w-4 h-4 mr-2"/>
-                  Join Call
-                  </Button></Link>
-              )}
-
-                  {appointment.status === 'Completed' && appointment.prescription && (
-                    <PrescriptionViewModal
-                     appointment={appointment}
-                     userType="patient"
-                     trigger={
-                      <Button
-                       variant='outline'
-                       size='sm'
-                       className="text-green-700 border-green-200 hover:bg-green-50"
-                      >
-                        <FileText className="w-4 h-4 mr-2"/>
-                        View Prescription
-                      </Button>
-                     }
+                <div>
+                  {canMarkCancelled(appointment) && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => handleMarkCancelled(appointment._id)}
+                    >
+                      <XCircle className="w-4 h-4 mr-2" />
+                      Mark Cancelled
+                    </Button>
+                  )}
+                </div>
+                {appointment.status === "Completed" &&
+                  appointment.prescription && (
+                    <PrescriptionViewModel
+                      appointment={appointment}
+                      userType="doctor"
+                      trigger={
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="text-green-700 border-green-200 hover:bg-green-50"
+                        >
+                          <Stethoscope className="w-4 h-4 mr-2" />
+                          View Report
+                        </Button>
+                      }
                     />
                   )}
+              </div>
 
-
-
-            </div>
-
-            {appointment.status === 'Completed' && (
-              <div className="flex items-center space-x-1">
-                {[...Array(5)].map((_,i) => (
-                  <Star
-                   className="w-4 h-4 fill-yellow-400 text-yellow-400"
-                  />
-                ))}
+              {appointment.status === "Completed" && (
+                <div className="flex items-center space-x-1">
+                  {[...Array(5)].map((_, i) => (
+                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                  ))}
                 </div>
-            )}
+              )}
             </div>
           </div>
         </div>
@@ -239,21 +267,6 @@ const PatientDashboardContent = () => {
   );
 
   const EmptyState = ({ tab }: { tab: string }) => {
-    const emptyStates = {
-      upcoming: {
-        icon: Clock,
-        title: "No Upcoming Appointments",
-        description: "You have no upcoming appointments scheduled.",
-        showBookButton: true,
-      },
-      past: {
-        icon: FileText,
-        title: "No Past Appointments",
-        description: "Your Completed consultations will appear here.",
-        showBookButton: false,
-      },
-    };
-
     const state = emptyStates[tab as keyof typeof emptyStates];
     const Icon = state.icon;
     return (
@@ -264,15 +277,6 @@ const PatientDashboardContent = () => {
             {state.title}
           </h3>
           <p className="text-gray-600 mb-6">{state.description}</p>
-
-          {state.showBookButton && (
-            <Link href="/doctor-list">
-              <Button>
-                <Calendar className="w-4 h-4 mr-2" />
-                Book Your First Appointment
-              </Button>
-            </Link>
-          )}
         </CardContent>
       </Card>
     );
@@ -290,15 +294,15 @@ const PatientDashboardContent = () => {
                 My Appointment
               </h1>
               <p className="text-xs md:text-lg text-gray-600">
-                Manage your healthcare appointments
+                Manage your patient consultations
               </p>
             </div>
 
             <div className="flex items-center space-x-4 ">
-              <Link href="/doctor-list">
+              <Link href="/dcotor/profile">
                 <Button>
                   <Calendar className="w-4 h-4 mr-2 " />
-                  Book <span className="hidden md:block">New Appointment</span>
+                  Update Availability
                 </Button>
               </Link>
             </div>
@@ -382,7 +386,7 @@ const PatientDashboardContent = () => {
                   ))}
                 </div>
               ) : (
-                <EmptyState tab="past" />
+                <EmptyState tab="completed" />
               )}
             </TabsContent>
           </Tabs>
@@ -392,4 +396,4 @@ const PatientDashboardContent = () => {
   );
 };
 
-export default PatientDashboardContent;
+export default DoctorAppointmentContent;
