@@ -122,7 +122,7 @@ const DoctorAppointmentContent = () => {
     <Card className="hover:shadow-lg transition: shadow">
       <CardContent className="p-6">
         <div className="flex flex-col items-center md:flex-row md:items-start md:space-x-6">
-          <div className="flex flex-shrink-0 justify-center md:justify-start">
+          <div className="flex shrink-0 justify-center md:justify-start">
             <Avatar className="size-20">
               <AvatarImage
                 src={appointment.patientId?.profileImage}
